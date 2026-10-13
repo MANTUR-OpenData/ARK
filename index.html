@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#023b42">
+  <title>MANTUR OPEN DATA | Atlas territorial</title>
+  <meta name="description" content="Consulta pública de información territorial MANTUR OPEN DATA.">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    :root{--jade:#39ffb6;--teal:#023b42;--ink:#14252a;--muted:#5c7075;--paper:#f5f8f7;--line:#d9e3e1;--red:#d92d3a;--yellow:#e4b600;--blue:#1684d6;--green:#15945a;--white:#fff}
+    *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--paper)}
+    button,a{font:inherit}a{color:#006f78}button{cursor:pointer}
+    .topbar{height:68px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:16px;box-shadow:0 2px 12px #102f3320;position:relative;z-index:500}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-mark{width:38px;height:38px;border:2px solid var(--jade);border-radius:50%;display:grid;place-items:center;color:var(--jade);font-weight:800;font-size:12px;letter-spacing:-.5px}.brand-title{font-weight:800;letter-spacing:.08em;font-size:15px}.brand-sub{font-size:11px;color:#c5ddda;margin-top:3px;letter-spacing:.08em}.top-status{font-size:12px;color:#d2e5e2;white-space:nowrap}
+    .workspace{height:calc(100% - 68px);display:grid;grid-template-columns:minmax(340px,410px) 1fr;min-height:0}.sidebar{background:#fff;border-right:1px solid var(--line);overflow:auto;min-height:0}.map-wrap{position:relative;min-width:0;min-height:0}#map{height:100%;width:100%;background:#dce8e5}.map-note{position:absolute;bottom:16px;left:16px;z-index:400;background:#ffffffed;border:1px solid var(--line);padding:9px 12px;border-radius:10px;font-size:12px;color:#42595d;box-shadow:0 3px 14px #1232}
+    .welcome{padding:28px 25px 24px}.eyebrow{color:#007c76;font-weight:800;font-size:11px;letter-spacing:.13em;text-transform:uppercase}.welcome h1{font-size:28px;line-height:1.12;color:var(--teal);margin:10px 0 12px}.welcome p{line-height:1.55;color:#43595e;font-size:14px}.welcome .welcome-callout{background:#effbf6;border-left:4px solid var(--jade);padding:13px 14px;border-radius:0 9px 9px 0;font-size:13px;line-height:1.5;margin:20px 0}.welcome .tiny{font-size:12px;color:var(--muted)}.welcome-rule{height:1px;background:var(--line);margin:22px 0}
+    .territory{padding:22px 20px 30px}.territory-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.territory h2{font-size:23px;line-height:1.15;color:var(--teal);margin:7px 0 4px}.sub-location{font-size:13px;color:var(--muted);line-height:1.4}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#e9f8f1;color:#116746;font-size:11px;font-weight:800;padding:6px 9px;white-space:nowrap}.ident-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 14px}.ident-cell{background:#f5f8f7;border:1px solid #e5ecea;border-radius:9px;padding:10px}.ident-cell span{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#687d80;margin-bottom:5px}.ident-cell strong{font-size:13px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}.json-link{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;background:var(--teal);color:#fff;border-radius:9px;padding:12px 14px;font-weight:750;font-size:13px;margin:14px 0 23px}.json-link:hover{background:#07545b}.section-head{border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;gap:12px;align-items:end}.section-head h3{font-size:17px;margin:0;color:var(--teal)}.section-head p{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.4}.foda-legend{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0 12px;font-size:11px;color:#52686c}.legend-item{display:inline-flex;align-items:center;gap:5px}.dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex:0 0 12px;border:1px solid #00000012}.dot-A{background:var(--red)}.dot-D{background:var(--yellow)}.dot-O{background:var(--blue)}.dot-F{background:var(--green)}
+    .group-title{display:flex;align-items:center;gap:8px;margin:17px 0 5px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#6c7d80;font-weight:800}.group-title .dot{width:10px;height:10px;flex-basis:10px}.aspect-list{display:flex;flex-direction:column}.aspect-row{display:flex;align-items:center;gap:11px;width:100%;border:0;border-bottom:1px solid #edf1f0;background:#fff;text-align:left;padding:10px 8px;color:#20373b;border-radius:6px;min-height:39px}.aspect-row:hover,.aspect-row:focus-visible{background:#effaf6;outline:2px solid #b4f5da;outline-offset:-2px}.aspect-row .aspect-name{font-size:13px;font-weight:600;line-height:1.3}.aspect-row .aspect-open{margin-left:auto;color:#809294;font-size:17px}.aspect-row .dot{width:13px;height:13px;flex-basis:13px;box-shadow:0 0 0 2px #fff,0 0 0 3px #dce5e3}.empty-state{padding:24px;color:var(--muted);font-size:14px;line-height:1.5}
+    .modal-backdrop{position:fixed;inset:0;background:#061d20a8;z-index:1000;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{width:min(720px,100%);max-height:min(88vh,900px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 22px 70px #00171955;display:flex;flex-direction:column}.modal-head{background:var(--teal);color:#fff;padding:18px 20px;display:flex;gap:16px;align-items:flex-start;justify-content:space-between}.modal-kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);font-weight:800}.modal-head h2{margin:5px 0 0;font-size:23px;line-height:1.2}.close-btn{background:#ffffff1c;border:1px solid #ffffff55;border-radius:8px;color:#fff;width:36px;height:36px;font-size:24px;line-height:1;flex:0 0 36px}.modal-body{padding:20px;overflow:auto}.class-chip{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 10px;background:#f1f5f4;font-size:12px;font-weight:800;margin-bottom:15px}.detail-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#62777a;font-weight:800;margin:0 0 8px}.representative{font-size:16px;line-height:1.6;color:#213c40;margin:0 0 20px}.progress-section{border-top:1px solid var(--line);padding-top:17px;margin-top:18px}.more-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #a8c5c1;background:#fff;color:var(--teal);font-weight:800;border-radius:8px;padding:10px 13px;margin-top:8px}.more-btn:hover{background:#effaf6}.more-btn:disabled{opacity:.45;cursor:default}.hidden-content{display:none}.hidden-content.visible{display:block}.validation-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.validation-badge{background:#edf7f3;border-radius:8px;padding:9px 11px;font-size:13px}.validation-badge strong{display:block;color:#136546;margin-bottom:3px}.summary-text{white-space:pre-line;line-height:1.6;font-size:14px;color:#30494d}.foda-card{border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow:hidden}.foda-card-head{padding:10px 12px;font-size:12px;font-weight:850;letter-spacing:.06em;display:flex;align-items:center;gap:8px}.foda-card-head .dot{width:10px;height:10px;flex-basis:10px}.foda-card-content{padding:0 12px 12px}.foda-item{padding:10px 0;border-top:1px solid #edf1f0}.foda-item strong{display:block;font-size:13px;line-height:1.4;margin-bottom:5px}.foda-item p{font-size:13px;line-height:1.5;color:#53696d;margin:0}.source-list{margin:0;padding-left:20px}.source-list li{padding:5px 0;font-size:13px;line-height:1.45}.modal-footer{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;background:#fbfcfc}.footer-note{font-size:11px;color:var(--muted)}.footer-json{font-size:12px;font-weight:800;text-decoration:none}.loading{padding:24px;font-size:14px;color:var(--muted)}.error{padding:20px;color:#a3232b;line-height:1.5}
+    @media(max-width:800px){.topbar{height:60px;padding:0 14px}.top-status{display:none}.workspace{height:calc(100% - 60px);grid-template-columns:1fr;grid-template-rows:minmax(42%,48%) minmax(0,1fr)}.map-wrap{grid-row:1}.sidebar{grid-row:2;border-right:0;border-top:1px solid var(--line)}.welcome{padding:20px}.welcome h1{font-size:24px}.territory{padding:18px}.map-note{bottom:10px;left:10px;font-size:11px}.modal-backdrop{padding:8px}.modal{max-height:94vh}.modal-head h2{font-size:20px}.modal-body{padding:16px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">M</div><div><div class="brand-title">MANTUR OPEN DATA</div><div class="brand-sub">ATLAS TERRITORIAL · CONSULTA PÚBLICA</div></div></div>
+    <div class="top-status" id="catalog-status">Cargando directorio territorial…</div>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar" id="sidebar" aria-live="polite">
+      <section class="welcome">
+        <div class="eyebrow">Datos territoriales abiertos</div>
+        <h1>Conocer el territorio para comprender sus desafíos.</h1>
+        <p>MANTUR OPEN DATA permite explorar información territorial organizada en dimensiones, consultar su clasificación FODA y profundizar en los elementos, justificaciones y fuentes del análisis.</p>
+        <div class="welcome-callout"><strong>¿Cómo consultar?</strong><br>Selecciona el marcador territorial en el mapa. En el panel encontrarás la identificación del territorio y sus 32 aspectos. Pulsa cualquier aspecto para abrir su consulta progresiva.</div>
+        <div class="welcome-rule"></div>
+        <div class="eyebrow">Directorio público</div>
+        <p id="welcome-count">Preparando el catálogo de territorios publicados…</p>
+        <p class="tiny">El directorio se mantiene separado de la página para poder incorporar nuevas ARK sin modificar el visor.</p>
+      </section>
+    </aside>
+    <section class="map-wrap" aria-label="Mapa de territorios publicados">
+      <div id="map"></div>
+      <div class="map-note">Selecciona un marcador para consultar una ARK</div>
+    </section>
+  </main>
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <article class="modal">
+      <header class="modal-head"><div><div class="modal-kicker" id="modal-kicker">Consulta territorial · Nivel 1</div><h2 id="modal-title">Aspecto territorial</h2></div><button class="close-btn" id="close-modal" aria-label="Cerrar popup">×</button></header>
+      <div class="modal-body" id="modal-body"></div>
+      <footer class="modal-footer"><span class="footer-note" id="modal-step-note">Consulta progresiva del análisis territorial</span><a class="footer-json" id="modal-json-link" href="#" target="_blank" rel="noopener">Ver JSON original ↗</a></footer>
+    </article>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+  (() => {
+    'use strict';
+    const DIRECTORY_URL = './directorio_ark.json';
+    const COLORS = { A:'#d92d3a', D:'#e4b600', O:'#1684d6', F:'#15945a' };
+    const LABELS = { A:'Amenazas', D:'Debilidades', O:'Oportunidades', F:'Fortalezas' };
+    const map = L.map('map', { zoomControl:true, scrollWheelZoom:true }).setView([-41.143233,-71.367396], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+    const markers = L.featureGroup().addTo(map);
+    const $ = id => document.getElementById(id);
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    let directory = [];
+    let selectedEntry = null;
+    let selectedArk = null;
+    let activeDimension = null;
+
+    function makeMarkerIcon(){
+      return L.divIcon({className:'',html:'<div style="width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#023b42;border:3px solid #39ffb6;box-shadow:0 2px 8px #001e2066"><div style="width:6px;height:6px;border-radius:50%;background:white;margin:6px"></div></div>',iconSize:[28,28],iconAnchor:[14,28],popupAnchor:[0,-25]});
+    }
+    async function loadDirectory(){
+      try {
+        const response = await fetch(DIRECTORY_URL, {cache:'no-store'});
+        if(!response.ok) throw new Error('No se pudo leer directorio_ark.json (HTTP '+response.status+').');
+        const data = await response.json();
+        directory = (data.ARKS || []).filter(item => item.ACTIVA !== false);
+        $('catalog-status').textContent = directory.length + (directory.length === 1 ? ' ARK publicada' : ' ARK publicadas');
+        $('welcome-count').textContent = 'El directorio contiene actualmente ' + directory.length + (directory.length === 1 ? ' ARK publicada.' : ' ARK publicadas.');
+        for (const entry of directory) await addArkMarker(entry);
+        if(directory.length){
+          const bounds = markers.getBounds();
+          if(bounds.isValid()) map.fitBounds(bounds.pad(directory.length === 1 ? 0.55 : 0.18), {maxZoom:11});
+        }
+      } catch(error){
+        $('catalog-status').textContent = 'No se pudo cargar el directorio';
+        $('welcome-count').textContent = 'No se pudo cargar el directorio. Comprueba que directorio_ark.json esté publicado junto a index.html.';
+        console.error(error);
+      }
+    }
+    async function addArkMarker(entry){
+      try {
+        const response = await fetch(entry.URL_JSON, {cache:'no-store'});
+        if(!response.ok) throw new Error('HTTP '+response.status+' al leer '+entry.NOMBRE_ARCHIVO);
+        const ark = await response.json();
+        const geo = ark.TERRITORIO?.GEO;
+        const lat = Number(geo?.LAT), lon = Number(geo?.LON);
+        if(!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('La ARK no tiene coordenadas válidas: '+entry.NOMBRE_ARCHIVO);
+        const label = ark.TERRITORIO?.LOCALIDAD || ark.TERRITORIO?.DIRECCION || ark.ARK_ID;
+        const marker = L.marker([lat,lon], {icon:makeMarkerIcon(), title:label, alt:'Seleccionar '+label}).addTo(markers);
+        marker.bindTooltip(escapeHtml(label), {direction:'top',offset:[0,-20]});
+        marker.on('click', () => selectArk(entry, ark));
+        entry._marker = marker;
+        entry._ark = ark;
+      } catch(error){ console.error(error); }
+    }
+    function selectArk(entry, ark){
+      selectedEntry = entry; selectedArk = ark;
+      renderTerritoryPanel(entry, ark);
+      const loc = ark.TERRITORIO || {};
+      const geo = loc.GEO || {};
+      map.flyTo([Number(geo.LAT),Number(geo.LON)], Math.max(map.getZoom(), 10), {duration:.45});
+      document.querySelectorAll('.leaflet-marker-icon').forEach(el=>el.style.filter='');
+    }
+    function classificationMap(ark){
+      const out = {};
+      const areas = ark.SEMAFORO?.AREAS || {};
+      for(const area of Object.values(areas)) for(const cls of ['A','D','O','F']) for(const key of (area[cls] || [])) out[key] = cls;
+      for(const [key,dim] of Object.entries(ark.DIMENSIONES || {})) if(!out[key]) out[key] = dim.FODA_REPRESENTATIVO_C1?.CLASIFICACION || dim.VALIDACION_C18?.CLASIFICACION || 'F';
+      return out;
+    }
+    function renderTerritoryPanel(entry, ark){
+      const t = ark.TERRITORIO || {}, geo = t.GEO || {}, classification = classificationMap(ark);
+      const dims = ark.DIMENSIONES || {};
+      const entries = Object.entries(dims).map(([key,dim])=>({key,dim,cls:classification[key] || 'F'}));
+      const ordered = ['A','D','O','F'];
+      const githubUrl = entry.URL_GITHUB || ('https://github.com/MANTUR-OpenData/ARK/blob/main/'+encodeURIComponent(entry.NOMBRE_ARCHIVO));
+      let listHtml = '';
+      for(const cls of ordered){
+        const group = entries.filter(item=>item.cls===cls).sort((a,b)=>(Number(a.dim.NUMERO)||0)-(Number(b.dim.NUMERO)||0));
+        if(!group.length) continue;
+        listHtml += `<div class="group-title"><span class="dot dot-${cls}"></span>${cls} · ${LABELS[cls]} <span style="font-weight:500;letter-spacing:0;text-transform:none">(${group.length})</span></div><div class="aspect-list">`;
+        listHtml += group.map(item=>`<button class="aspect-row" data-dimension="${escapeHtml(item.key)}" aria-label="Consultar ${escapeHtml(item.dim.NOMBRE)}"><span class="dot dot-${cls}"></span><span class="aspect-name">${escapeHtml(item.dim.NOMBRE || item.key)}</span><span class="aspect-open" aria-hidden="true">›</span></button>`).join('');
+        listHtml += '</div>';
+      }
+      $('sidebar').innerHTML = `<section class="territory"><div class="eyebrow">ARK territorial seleccionada</div><div class="territory-head"><div><h2>${escapeHtml(t.LOCALIDAD || t.DIRECCION || 'Territorio')}</h2><div class="sub-location">${escapeHtml([t.PROVINCIA,t.PAIS].filter(Boolean).join(' · '))}</div></div><span class="pill"><span style="width:7px;height:7px;background:#15945a;border-radius:50%"></span>Publicada</span></div><div class="ident-grid"><div class="ident-cell"><span>Localidad</span><strong>${escapeHtml(t.LOCALIDAD || '—')}</strong></div><div class="ident-cell"><span>País</span><strong>${escapeHtml(t.PAIS || '—')}</strong></div><div class="ident-cell"><span>Coordenadas</span><strong>${Number.isFinite(Number(geo.LAT)) ? Number(geo.LAT).toFixed(5) : '—'}, ${Number.isFinite(Number(geo.LON)) ? Number(geo.LON).toFixed(5) : '—'}</strong></div><div class="ident-cell"><span>Dimensiones</span><strong>${entries.length} aspectos territoriales</strong></div></div><a class="json-link" href="${escapeHtml(githubUrl)}" target="_blank" rel="noopener">↗ Ver ARK original (JSON)</a><div class="section-head"><div><h3>Semáforo territorial FODA</h3><p>Selecciona un aspecto para profundizar en el análisis.</p></div></div><div class="foda-legend"><span class="legend-item"><i class="dot dot-A"></i>Amenazas</span><span class="legend-item"><i class="dot dot-D"></i>Debilidades</span><span class="legend-item"><i class="dot dot-O"></i>Oportunidades</span><span class="legend-item"><i class="dot dot-F"></i>Fortalezas</span></div>${listHtml}<p class="tiny" style="font-size:11px;color:#738689;line-height:1.5;margin-top:20px">Clasificación representativa de cada dimensión según los datos publicados en la ARK.</p></section>`;
+      $('sidebar').querySelectorAll('[data-dimension]').forEach(button=>button.addEventListener('click',()=>openDimension(button.dataset.dimension)));
+    }
+    function openDimension(key){
+      if(!selectedArk) return;
+      const dim = selectedArk.DIMENSIONES?.[key];
+      if(!dim) return;
+      activeDimension = {key,dim};
+      const cls = dim.FODA_REPRESENTATIVO_C1?.CLASIFICACION || dim.VALIDACION_C18?.CLASIFICACION || classificationMap(selectedArk)[key] || 'F';
+      $('modal-title').textContent = dim.NOMBRE || key;
+      $('modal-kicker').textContent = 'Consulta territorial · Nivel 1 de 4';
+      $('modal-json-link').href = selectedEntry.URL_GITHUB || '#';
+      $('modal-step-note').textContent = key+' · Consulta progresiva';
+      $('modal-body').innerHTML = `<div class="class-chip"><span class="dot dot-${cls}"></span>${cls} · ${LABELS[cls] || 'Clasificación territorial'}</div><p class="detail-label">Resumen representativo · C1</p><p class="representative">${escapeHtml(dim.FODA_REPRESENTATIVO_C1?.TEXTO || 'No hay resumen representativo disponible en esta dimensión.')}</p><div class="progress-section"><p class="detail-label">2 · Validación territorial C18</p><div class="hidden-content" id="level-2"><div class="validation-grid"><div class="validation-badge"><strong>Clasificación</strong>${escapeHtml(dim.VALIDACION_C18?.CLASIFICACION || 'No disponible')}</div><div class="validation-badge"><strong>Estado</strong>${escapeHtml(dim.VALIDACION_C18?.ESTADO || 'No disponible')}</div></div><p class="detail-label">Resumen territorial</p><div class="summary-text">${escapeHtml(dim.RESUMEN_TERRITORIAL_CLIMA || 'No hay resumen territorial disponible.')}</div></div><button class="more-btn" data-reveal="2">Ver más <span aria-hidden="true">↓</span></button></div><div class="progress-section"><p class="detail-label">3 · Bloque Cerebrón</p><div class="hidden-content" id="level-3">${renderFodaBlock(dim)}</div><button class="more-btn" data-reveal="3" disabled>Ver más <span aria-hidden="true">↓</span></button></div><div class="progress-section"><p class="detail-label">4 · Fuentes del análisis</p><div class="hidden-content" id="level-4">${renderSources(dim)}</div><button class="more-btn" data-reveal="4" disabled>Ver más <span aria-hidden="true">↓</span></button></div>`;
+      $('modal-backdrop').classList.add('open');
+      $('close-modal').focus();
+      $('modal-body').querySelectorAll('[data-reveal]').forEach(btn=>btn.addEventListener('click',()=>revealLevel(Number(btn.dataset.reveal))));
+    }
+    function renderFodaBlock(dim){
+      const foda = dim.FODA_C1 || {};
+      return ['F','O','D','A'].map(cls=>{
+        const items = Array.isArray(foda[cls]) ? foda[cls] : [];
+        return `<section class="foda-card"><div class="foda-card-head"><span class="dot dot-${cls}"></span>${cls} · ${LABELS[cls]} <span style="font-weight:500">(${items.length})</span></div><div class="foda-card-content">${items.length ? items.map(item=>`<div class="foda-item"><strong>${escapeHtml(item.ELEMENTO || 'Elemento sin nombre')}</strong><p>${escapeHtml(item.JUSTIFICACION || 'Sin justificación disponible.')}</p></div>`).join('') : '<div class="foda-item"><p>No hay elementos registrados en esta categoría.</p></div>'}</div></section>`;
+      }).join('');
+    }
+    function renderSources(dim){
+      const sources = Array.isArray(dim.FUENTES_C1) ? dim.FUENTES_C1 : [];
+      return sources.length ? `<ul class="source-list">${sources.map(source=>`<li>${escapeHtml(source)}</li>`).join('')}</ul>` : '<p class="summary-text">No hay fuentes registradas para este aspecto.</p>';
+    }
+    function revealLevel(level){
+      const content = $('level-'+level);
+      if(!content) return;
+      content.classList.add('visible');
+      const currentButton = $('modal-body').querySelector(`[data-reveal="${level}"]`);
+      if(currentButton){currentButton.textContent = level===4 ? 'Fuentes consultadas ✓' : 'Sección desplegada ✓';currentButton.disabled=true;}
+      const next = $('modal-body').querySelector(`[data-reveal="${level+1}"]`);
+      if(next) next.disabled=false;
+      $('modal-kicker').textContent = 'Consulta territorial · Nivel '+Math.min(level+1,4)+' de 4';
+      if(level===4) $('modal-step-note').textContent = 'Fuentes C1 · El JSON original está disponible en el enlace inferior.';
+    }
+    function closeModal(){ $('modal-backdrop').classList.remove('open'); }
+    $('close-modal').addEventListener('click',closeModal);
+    $('modal-backdrop').addEventListener('click',event=>{if(event.target===$('modal-backdrop')) closeModal();});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape') closeModal();});
+    loadDirectory();
+  })();
+  </script>
+</body>
+</html>
